@@ -40,6 +40,7 @@ class InfoPreview : Fragment() {
     private lateinit var infoPreviewViewModel: InfoPreviewViewModel
     private lateinit var userUUID: String
     private lateinit var userName: String
+    private lateinit var firebaseAuth: FirebaseAuth
     private val wildCardUUID: String = "dd829d6d-894d-4f02-8f9a-d076dee6bdf8"
     private val appCalculation = AppCalculation()
 
@@ -52,10 +53,10 @@ class InfoPreview : Fragment() {
                 .setTimestampsInSnapshotsEnabled(true)
                 .build()
         firestore.firestoreSettings(settings)
+        firebaseAuth = FirebaseAuth.getInstance()
         setHasOptionsMenu(true)
-
         // Receive Argument Bundle
-        processArgument(arguments!!)
+        processArgument()
         Timber.v("---========> User UUID From Google Auth is $userName with $userUUID <========-------")
     }
 
@@ -108,17 +109,25 @@ class InfoPreview : Fragment() {
         })
     }
 
-    private fun processArgument(arguments: Bundle) {
-        userUUID = if (arguments["userUUID"] != null) {
-            Timber.v("Argument UserUUID is not null")
-            (arguments.getString("userUUID")!!)
-        } else {
-            wildCardUUID
+    private fun processArgument() {
+//        userUUID = if (arguments["userUUID"] != null) {
+//            Timber.v("Argument UserUUID is not null")
+//            (arguments.getString("userUUID")!!)
+//        } else {
+//            wildCardUUID
+//        }
+//        userName = if (arguments["userName"] != null) {
+//            (arguments.getString("userName")!!)
+//        } else {
+//            "User Not Found"
+//        }
+        val user = firebaseAuth.currentUser
+        if(user!= null){
+            userUUID = user.uid
+            userName = user.email.toString()
         }
-        userName = if (arguments["userName"] != null) {
-            (arguments.getString("userName")!!)
-        } else {
-            "User Not Found"
+        else{
+            findNavController().navigate(R.id.action_infoPreview_to_traditionalLoginFragment2)
         }
     }
 
@@ -156,19 +165,6 @@ class InfoPreview : Fragment() {
 
     private fun setUIMajorButton() {
         var bundle: Bundle
-        binding.btMeasure.setOnClickListener {
-            val inputUserUUID = if (ownerUser!!.inputProgramUser == null) {
-                null
-            } else {
-                ownerUser!!.inputProgramUser
-            }
-            val intent = Intent(this.context, DashboardActivity::class.java).apply {
-                Timber.v("Before Send Intent userUUID: $userUUID  $inputUserUUID")
-                putExtra("userUUID2", inputUserUUID)
-                putExtra("firebaseUserUUID", userUUID)
-            }
-            startActivity(intent)
-        }
         binding.appEditProfile.setOnClickListener {
             bundle = Bundle()
             bundle.putString("userUUID", userUUID)
@@ -183,26 +179,6 @@ class InfoPreview : Fragment() {
 
     private fun setUIBasicComponent() {
         var bundle: Bundle
-        binding.frontToolbar.title = "Personal Health Connected"
-        binding.frontToolbar.setTitleTextColor(Color.WHITE)
-        binding.frontToolbar.inflateMenu(R.menu.new_nav_menu)
-        binding.frontToolbar.setOnMenuItemClickListener { menuItem: MenuItem? ->
-            when {
-                menuItem!!.itemId == R.id.bt_logout -> {
-                    logoutFirestore()
-                    true
-                }
-                menuItem.itemId == R.id.bt_edit_profile -> {
-                    val menuBundle = Bundle()
-                    menuBundle.putString("userUUID", userUUID)
-                    findNavController().navigate(R.id.action_infoPreview_to_editPersonalDataFragment, menuBundle)
-                    true
-                }
-                else -> {3
-                    true
-                }
-            }
-        }
         binding.userName.text = "Waiting"
         binding.appSpo2.setOnClickListener {
             bundle = Bundle()
