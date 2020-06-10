@@ -144,7 +144,7 @@ class InfoPreview : Fragment() {
             R.id.bt_edit_profile -> {
                 val bundle = Bundle()
                 bundle.putString("userUUID", userUUID)
-                findNavController().navigate(R.id.action_infoPreview_to_editPersonalDataFragment, bundle)
+                findNavController().navigate(R.id.action_global_editPersonalDataFragment, bundle)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -158,7 +158,7 @@ class InfoPreview : Fragment() {
             val bundle = Bundle()
             Timber.v("User Birthday ${ownerUser!!.bDay}")
             bundle.putString("userUUID", userUUID)
-            findNavController().navigate(R.id.action_infoPreview_to_editPersonalDataFragment, bundle)
+            findNavController().navigate(R.id.action_global_editPersonalDataFragment, bundle)
         }
     }
 
@@ -168,7 +168,7 @@ class InfoPreview : Fragment() {
         binding.appEditProfile.setOnClickListener {
             bundle = Bundle()
             bundle.putString("userUUID", userUUID)
-            binding.appEditProfile.findNavController().navigate(R.id.action_infoPreview_to_editPersonalDataFragment, bundle)
+            binding.appEditProfile.findNavController().navigate(R.id.action_global_editPersonalDataFragment, bundle)
         }
     }
 
