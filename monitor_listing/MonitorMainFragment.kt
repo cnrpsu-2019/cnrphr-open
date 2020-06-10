@@ -82,9 +82,7 @@ class MonitorMainFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_monitor_main, container, false)
         viewModelFactory = MonitorViewModelFactory(requestDataType, userUUID, application)
         viewModel = getViewModelFromFactory(viewModelFactory)
-        binding.monitorToolbar.title = requestDataType.thaiName
-        binding.monitorToolbar.setTitleTextColor(WHITE)
-
+        activity?.actionBar?.title = requestDataType.thaiName
         observeGraphData()
         // observeRiskLevelData()
         return binding.root

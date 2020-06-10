@@ -12,7 +12,7 @@ import timber.log.Timber
 class InfoPreviewRepository {
     val currentUser = MutableLiveData<FirebaseUser>()
     val db = FirebaseFirestore.getInstance()
-    val diseaseRiskTranslate = DiseaseRiskTranslator()
+    private val diseaseRiskTranslate = DiseaseRiskTranslator()
 
     suspend fun findUserInFirestoreCoroutines(userUUID: String, userName: String) {
         val userReference = db.collection("user")
@@ -40,8 +40,8 @@ class InfoPreviewRepository {
                                                             document.data?.get("uuid").toString(),
                                                             document.data?.get("inputProgramUser").toString(),
                                                             document.data?.get("bday").toString().toInt(),
-                                                            document.data?.get("bMonth").toString().toInt(),
-                                                            document.data?.get("bYear").toString().toInt(),
+                                                            document.data?.get("bmonth").toString().toInt(),
+                                                            document.data?.get("byear").toString().toInt(),
                                                             document.data?.get("weight").toString().toFloat(),
                                                             document.data?.get("height").toString().toFloat(),
                                                             document.data?.get("adminStatus").toString().toBoolean(),

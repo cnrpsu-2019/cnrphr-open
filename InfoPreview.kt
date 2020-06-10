@@ -41,7 +41,6 @@ class InfoPreview : Fragment() {
     private lateinit var userUUID: String
     private lateinit var userName: String
     private lateinit var firebaseAuth: FirebaseAuth
-    private val wildCardUUID: String = "dd829d6d-894d-4f02-8f9a-d076dee6bdf8"
     private val appCalculation = AppCalculation()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,17 +109,6 @@ class InfoPreview : Fragment() {
     }
 
     private fun processArgument() {
-//        userUUID = if (arguments["userUUID"] != null) {
-//            Timber.v("Argument UserUUID is not null")
-//            (arguments.getString("userUUID")!!)
-//        } else {
-//            wildCardUUID
-//        }
-//        userName = if (arguments["userName"] != null) {
-//            (arguments.getString("userName")!!)
-//        } else {
-//            "User Not Found"
-//        }
         val user = firebaseAuth.currentUser
         if(user!= null){
             userUUID = user.uid

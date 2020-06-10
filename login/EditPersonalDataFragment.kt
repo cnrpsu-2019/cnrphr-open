@@ -57,14 +57,7 @@ class EditPersonalDataFragment :Fragment(){
         personalDataViewModel = EditPersonalDataViewModel(application)
         personalDataViewModel.getPersonalHealthData(uuid!!)
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_personal_data,container,false)
-//        binding.epdToolbar.setTitleTextColor(Color.WHITE)
-//        binding.epdToolbar.title = "Edit Personal Data"
-//        getPatient()
-//
-//        binding.epdToolbar.navigationIcon = resources.getDrawable(R.drawable.baseline_arrow_back_white_18dp)
-//        binding.epdToolbar.setNavigationOnClickListener { View.OnClickListener {
-//                it.findNavController().navigateUp()
-//        }}
+        getPatient()
 
         datePicker = binding.datePicker1
         val today = Calendar.getInstance()
