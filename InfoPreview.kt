@@ -24,6 +24,7 @@ import com.cnr.phr_android.databinding.FragmentInfoPreviewBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 /**
@@ -40,40 +41,26 @@ class InfoPreview : Fragment() {
     private lateinit var infoPreviewViewModel: InfoPreviewViewModel
     private lateinit var userUUID: String
     private lateinit var userName: String
+    private lateinit var firestore: FirebaseFirestore
     private lateinit var firebaseAuth: FirebaseAuth
     private val appCalculation = AppCalculation()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // Firebase Timestamp Setting
-        val firestore = FirebaseFirestore.getInstance()
-        val settings = FirebaseFirestoreSettings.Builder()
-                .setTimestampsInSnapshotsEnabled(true)
-                .build()
-        firestore.firestoreSettings(settings)
-        firebaseAuth = FirebaseAuth.getInstance()
-        setHasOptionsMenu(true)
-        // Receive Argument Bundle
-        processArgument()
-        Timber.v("---========> User UUID From Google Auth is $userName with $userUUID <========-------")
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         Timber.v("Initial Application on View Creates")
+        initializeFirebase()
+        checkForAuthentication()
+        setHasOptionsMenu(true)
         application = requireNotNull(this.activity).application
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_info_preview, container, false)
         infoPreviewViewModel = InfoPreviewViewModel(userUUID, userName, application)
         infoPreviewViewModel.findUserFromFirestore()
-
-        // Control Handle
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_info_preview, container, false)
         setUIBasicComponent()
         setUIMajorButton()
         return binding.root
     }
-
 
     override fun onStart() {
         super.onStart()
@@ -83,11 +70,10 @@ class InfoPreview : Fragment() {
                 Timber.v("Owner User is Ready $ownerUser")
                 getUserVitalSignDataDisplay()
                 checkIfPersonalDataInitiate()
+                //settingBottomToolbar()
             }
         })
     }
-
-
     private fun getUserVitalSignDataDisplay() {
         Timber.v("Get UserVitalSignDataDisplay has Called on Fragment ")
         infoPreviewViewModel.userVitalSignList.observe(this, Observer { personalList ->
@@ -108,23 +94,26 @@ class InfoPreview : Fragment() {
         })
     }
 
-    private fun processArgument() {
-        val user = firebaseAuth.currentUser
-        if(user!= null){
-            userUUID = user.uid
-            userName = user.email.toString()
-        }
-        else{
-            findNavController().navigate(R.id.action_infoPreview_to_traditionalLoginFragment2)
-        }
-    }
-
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         inflater!!.inflate(R.menu.new_nav_menu, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when (item!!.itemId) {
+            R.id.bt_measure->{
+                val inputUserUUID = if (ownerUser?.inputProgramUser == null) {
+                    null
+                } else {
+                    ownerUser?.inputProgramUser
+                }
+                val intent = Intent( this.context , DashboardActivity::class.java).apply {
+                    Timber.v("Before Send Intent userUUID: $userUUID  $inputUserUUID")
+                    putExtra("userUUID2", inputUserUUID)
+                    putExtra("firebaseUserUUID", userUUID)
+                }
+                startActivity(intent)
+                true
+            }
             R.id.bt_logout -> {
                 logoutFirestore()
                 true
@@ -150,6 +139,19 @@ class InfoPreview : Fragment() {
         }
     }
 
+    private fun checkForAuthentication(){
+        Timber.v("Check For Authentication")
+        val user: com.google.firebase.auth.FirebaseUser? = firebaseAuth.currentUser
+        if(user!= null){
+            Timber.v("User Found")
+            userUUID = user.uid
+            userName = user.email.toString()
+        }
+        else{
+            Timber.v("User Not Found")
+            findNavController().navigate(R.id.action_global_traditionalLoginFragment)
+        }
+    }
 
     private fun setUIMajorButton() {
         var bundle: Bundle
@@ -158,6 +160,36 @@ class InfoPreview : Fragment() {
             bundle.putString("userUUID", userUUID)
             binding.appEditProfile.findNavController().navigate(R.id.action_global_editPersonalDataFragment, bundle)
         }
+    }
+
+//    private fun settingBottomToolbar(){
+//        val navController = findNavController()
+//        binding.btDashboard.setOnClickListener {
+//            navController.navigate(R.id.action_global_infoPreview)
+//        }
+//        binding.btMeasure.setOnClickListener {
+//            val inputUserUUID = if (ownerUser?.inputProgramUser == null) {
+//            null
+//        } else {
+//            ownerUser?.inputProgramUser
+//        }
+//            val intent = Intent( this.context , DashboardActivity::class.java).apply {
+//                Timber.v("Before Send Intent userUUID: $userUUID  $inputUserUUID")
+//                putExtra("userUUID2", inputUserUUID)
+//                putExtra("firebaseUserUUID", userUUID)
+//            }
+//            startActivity(intent)
+//        }
+//    }
+
+    private  fun initializeFirebase(){
+        Timber.v("Firebase Initialize in InfoPreview")
+        firestore = FirebaseFirestore.getInstance()
+        val settings = FirebaseFirestoreSettings.Builder()
+                .setTimestampsInSnapshotsEnabled(true)
+                .build()
+        firestore.firestoreSettings(settings)
+        firebaseAuth = FirebaseAuth.getInstance()
     }
 
     private fun logoutFirestore() {
